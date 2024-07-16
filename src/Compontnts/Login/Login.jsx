@@ -1,42 +1,96 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import useAxiosPublic from "../../utils/useAxiosPublic";
+import { useForm } from "react-hook-form";
+import { setEmail } from "../../utils/setStorage";
+import { useContext } from "react";
+import { AuthContext } from "../../Provider/AuthProvider";
 
 
 const Login = () => {
+    const axiosPublic = useAxiosPublic();
+    const navigate = useNavigate();
+
+    const {signIn} = useContext(AuthContext);
+    // console.log(signIn)
+    
+    const { register, handleSubmit, formState: { errors } } = useForm();
+
+    const onSubmit = async(data) => {
+        const info = {
+            email : data.email,
+            pin : data.pin,
+            
+        }
+        signIn(info.email, info.pin);
+
+        
+        // try {
+        //     const {data} = await axiosPublic.get('/userLogin', info);
+            
+        //     if(data.message == 'matched') {
+        //         console.log(info.email)
+        //         setEmail(info.email);
+        //         navigate('/')
+        //     }
+        //     else {
+        //         alert(data.message)
+        //     }
+            
+        // } catch (error) {
+        //     console.log(error);
+        //     alert("something went wrong!")
+        // }
+    };
     return (
-        <div>
-            <div className="hero bg-base-200 min-h-screen">
-                <div className="hero-content flex-col lg:flex-row-reverse">
-                    <div className="text-center lg:text-left">
-                        <h1 className="text-5xl font-bold">Login now!</h1>
-                        <p className="py-6">
-                            Please Login to enjoy
-                        </p>
-                    </div>
-                    <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
-                        <form className="card-body">
-                            <div className="form-control">
-                                <label className="label">
-                                    <span className="label-text">Email</span>
-                                </label>
-                                <input type="email" placeholder="email" className="input input-bordered" required />
-                            </div>
-                            <div className="form-control">
-                                <label className="label">
-                                    <span className="label-text">Password</span>
-                                </label>
-                                <input type="password" placeholder="password" className="input input-bordered" required />
-                                <label className="label">
-                                    <a href="#" className="label-text-alt link link-hover">Forgot password?</a>
-                                </label>
-                            </div>
-                            <div className="form-control mt-6">
-                                <button className="btn btn-primary">Login</button>
-                            </div>
-                        </form>
-                        <Link to={'/reg'}>Register</Link>
-                    </div>
+        <div className="p-4 lg:p-10">
+
+            <p className="text-3xl lg:text-6xl font-bold text-center mb-10">Register</p>
+
+
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 border-2 p-2 lg:p-10 rounded-xl">
+                <div className="form-control">
+                    <label className="label">
+                        <span className="label-text">Email</span>
+                    </label>
+                    <input
+                        type="email"
+                        placeholder="Email"
+                        className="input input-bordered"
+                        {...register('email', { required: 'Email is required' })}
+                    />
+                    {errors.email && <span className="text-red-500">{errors.email.message}</span>}
                 </div>
-            </div>
+
+               
+
+                
+
+                <div className="form-control">
+                    <label className="label">
+                        <span className="label-text">5-digit PIN</span>
+                    </label>
+                    <input
+                        type="password"
+                        placeholder="PIN"
+                        maxLength="5"
+                        className="input input-bordered"
+                        {...register('pin', {
+                            required: 'PIN is required',
+                            pattern: {
+                                value: /^\d{5}$/,
+                                message: 'PIN must be exactly 5 digits'
+                            }
+                        })}
+                    />
+                    {errors.pin && <span className="text-red-500">{errors.pin.message}</span>}
+                </div>
+
+               
+
+                <div className="form-control">
+                    <button type="submit" className="btn btn-primary">Submit</button>
+                </div>
+            </form>
         </div>
     );
 };
